@@ -1,0 +1,168 @@
+#!/bin/bash
+
+### Variables
+
+ORGANIZATION="Central Michigan University"
+IDENTIFIER="edu.cmich.desktopwallpaper"
+
+function Usage() {
+cat <<-ENDOFMESSAGE
+
+Usage: $(basename "$0")
+    -w  --wallpaper location of the wallpaper you want to push out and create a profile for
+    -v  --version   version of the wallpaper (must increment if you want to overright previous)
+    -o  --output    directory to output packages to (defaults to current directory)
+    -h  --help      show this help text
+
+    $(basename "$0") packages an image to install into /Library/Desktop Pictures
+    and creates a profile to assign that wallpaper.
+
+ENDOFMESSAGE
+    exit 1
+}
+
+function Die() {
+    echo "$@"
+    Usage
+    exit 1
+}
+
+function GetOpts() {
+    argv=()
+    if [ "$#" -lt 1 ]; then
+      Die "You must specify the options."
+    fi
+    while [ "$#" -gt 0 ]
+    do
+        opt="$1"
+        shift
+        case "${opt}" in
+            -h|--help)
+                Usage;;
+            -w|--wallpaper)
+                if [ "$#" -eq 0 -o "${1:0:1}" = "-" ]; then
+                    Die "The ${opt} option requires an argument."
+                fi
+                wallpaper="$1"
+                shift
+                ;;
+            -v|--version)
+                if [ "$#" -eq 0 -o "${1:0:1}" = "-" ]; then
+                    Die "The ${opt} option requires an argument."
+                fi
+                version="$1"
+                shift
+                ;;
+            -o|--output)
+                if [ "$#" -eq 0 -o "${1:0:1}" = "-" ]; then
+                    Die "The ${opt} option requires an argument."
+                fi
+                output="$1"
+                shift
+                ;;
+            *)
+                if [ "${opt:0:1}" = "-" ]; then
+                    Die "${opt}: unknown option."
+                fi
+                argv+=(${opt});;
+        esac
+    done
+}
+
+GetOpts "$@"
+
+function OptCheck() {
+  if [[ "$1" == "" ]]; then
+    Die "You must specify all options."
+  fi
+}
+
+OptCheck "${wallpaper}"
+OptCheck "${version}"
+
+function CreateInstaller() {
+  wallpaper_path=$(realpath "${wallpaper}")
+  echo "${wallpaper_path}"
+  current_dir=$(pwd)
+  if [[ "${output}" != "" ]]; then
+    cd "${output}"
+  fi
+  wallpaper_filename=$(basename "${wallpaper}")
+  wallpaper_name=${wallpaper_filename%.*}
+  output_dir=$(pwd)
+  temp_dir="${output_dir}"/temp
+
+  # create wallpaper directory for package
+  mkdir "${temp_dir}"
+  mkdir "${temp_dir}""/payload/"
+  mkdir "${temp_dir}""/payload/Library/"
+  mkdir "${temp_dir}""/payload/Library/Desktop Pictures"
+  cp "${wallpaper_path}" "${temp_dir}""/payload/Library/Desktop Pictures/"
+  chmod 644 "${temp_dir}""/payload/Library/Desktop Pictures/""${wallpaper_filename}"
+
+  # build wallpaper package
+  /usr/bin/pkgbuild --root "${temp_dir}""/payload/" --identifier "${IDENTIFIER}" --version "${version}" "${output_dir}"/"${wallpaper_name}"-"${version}".pkg
+
+  # remove files
+  rm -Rf "${temp_dir}"
+  cd "${current_dir}"
+}
+
+CreateInstaller "${wallpaper}" "${version}" "${output}"
+
+function CreateProfile() {
+  if [[ "${output}" != "" ]]; then
+    cd "${output}"
+  fi
+  wallpaper_filename=$(basename "${wallpaper}")
+  wallpaper_name=${wallpaper_filename%.*}
+  #Make an empty txt file
+  echo '<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>PayloadDisplayName</key>
+			<string>Desktop</string>
+			<key>PayloadEnabled</key>
+			<true/>
+			<key>PayloadIdentifier</key>
+			<string>0dc319a0-c331-0131-eeb5-000c294ab81b.alacarte.macosxrestrictions.bb7511d0-638e-0132-eec8-000c294ab81b.desktop</string>
+			<key>PayloadType</key>
+			<string>com.apple.desktop</string>
+			<key>PayloadUUID</key>
+			<string>9EFB0A0A-F64A-4FF4-9477-101295DE7353</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>locked</key>
+			<false/>
+			<key>override-picture-path</key>
+			<string>'/Library/Desktop Pictures/"${wallpaper_filename}"'</string>
+		</dict>
+	</array>
+	<key>PayloadDescription</key>
+	<string>Desktop Background</string>
+	<key>PayloadDisplayName</key>
+	<string>Desktop Background</string>
+	<key>PayloadIdentifier</key>
+	<string>'${IDENTIFIER}'.profile</string>
+	<key>PayloadOrganization</key>
+	<string>'${ORGANIZATION}'</string>
+	<key>PayloadRemovalDisallowed</key>
+	<true/>
+	<key>PayloadScope</key>
+	<string>System</string>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadUUID</key>
+	<string>C7E78A8D-F0E3-4EDC-9BA7-8163E10BA847</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+</dict>
+</plist>'>./"${wallpaper_name}".mobileconfig
+
+}
+
+CreateProfile
