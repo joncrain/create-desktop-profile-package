@@ -2,8 +2,8 @@
 
 ### Variables
 
-ORGANIZATION="Central Michigan University"
-IDENTIFIER="edu.cmich.desktopwallpaper"
+ORGANIZATION=""
+IDENTIFIER=""
 
 function Usage() {
 cat <<-ENDOFMESSAGE
