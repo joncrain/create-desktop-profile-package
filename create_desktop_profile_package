@@ -1,9 +1,9 @@
 #!/bin/bash
 
 ### Variables
-
-ORGANIZATION=""
-IDENTIFIER=""
+### Please edit before running
+ORGANIZATION="Example"
+IDENTIFIER="com.example"
 
 function Usage() {
 cat <<-ENDOFMESSAGE
