@@ -93,10 +93,7 @@ function CreateInstaller() {
   temp_dir="${output_dir}"/temp
 
   # create wallpaper directory for package
-  mkdir "${temp_dir}"
-  mkdir "${temp_dir}""/payload/"
-  mkdir "${temp_dir}""/payload/Library/"
-  mkdir "${temp_dir}""/payload/Library/Desktop Pictures"
+  mkdir -p "${temp_dir}""/payload/Library/Desktop Pictures"
   cp "${wallpaper_path}" "${temp_dir}""/payload/Library/Desktop Pictures/"
   chmod 644 "${temp_dir}""/payload/Library/Desktop Pictures/""${wallpaper_filename}"
 
