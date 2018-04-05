@@ -80,6 +80,8 @@ function OptCheck() {
 OptCheck "${wallpaper}"
 OptCheck "${version}"
 
+function realpath { echo $(cd $(dirname $1); pwd)/$(basename $1); }
+
 function CreateInstaller() {
   wallpaper_path=$(realpath "${wallpaper}")
   echo "${wallpaper_path}"
@@ -130,11 +132,9 @@ function CreateProfile() {
 			<key>PayloadType</key>
 			<string>com.apple.desktop</string>
 			<key>PayloadUUID</key>
-			<string>9EFB0A0A-F64A-4FF4-9477-101295DE7353</string>
+			<string>'`uuidgen`'</string>
 			<key>PayloadVersion</key>
 			<integer>1</integer>
-			<key>locked</key>
-			<false/>
 			<key>override-picture-path</key>
 			<string>'/Library/Desktop Pictures/"${wallpaper_filename}"'</string>
 		</dict>
@@ -154,7 +154,7 @@ function CreateProfile() {
 	<key>PayloadType</key>
 	<string>Configuration</string>
 	<key>PayloadUUID</key>
-	<string>C7E78A8D-F0E3-4EDC-9BA7-8163E10BA847</string>
+	<string>'`uuidgen`'</string>
 	<key>PayloadVersion</key>
 	<integer>1</integer>
 </dict>
