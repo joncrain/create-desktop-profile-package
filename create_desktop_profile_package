@@ -2,8 +2,8 @@
 
 ### Variables
 ### Please edit before running
-ORGANIZATION="Central Michigan University"
-IDENTIFIER="edu.cmich"
+ORGANIZATION="Example"
+IDENTIFIER="com.example"
 
 function Usage() {
 cat <<-ENDOFMESSAGE
