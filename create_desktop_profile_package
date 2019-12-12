@@ -64,7 +64,7 @@ function GetOpts() {
                 if [ "${opt:0:1}" = "-" ]; then
                     Die "${opt}: unknown option."
                 fi
-                argv+=(${opt});;
+                argv+=("${opt}");;
         esac
     done
 }
@@ -80,14 +80,14 @@ function OptCheck() {
 OptCheck "${wallpaper}"
 OptCheck "${version}"
 
-function realpath { echo $(cd $(dirname $1); pwd)/$(basename $1); }
+function realpath { echo "$(cd "$(dirname "$1")" || exit; pwd)"/"$(basename "$1")"; }
 
 function CreateInstaller() {
   wallpaper_path=$(realpath "${wallpaper}")
   echo "${wallpaper_path}"
   current_dir=$(pwd)
   if [[ "${output}" != "" ]]; then
-    cd "${output}"
+    cd "${output}" || return
   fi
   wallpaper_filename=$(basename "${wallpaper}")
   wallpaper_name=${wallpaper_filename%.*}
@@ -104,14 +104,14 @@ function CreateInstaller() {
 
   # remove files
   rm -Rf "${temp_dir}"
-  cd "${current_dir}"
+  cd "${current_dir}" || return
 }
 
 CreateInstaller "${wallpaper}" "${version}" "${output}"
 
 function CreateProfile() {
   if [[ "${output}" != "" ]]; then
-    cd "${output}"
+    cd "${output}" || return
   fi
   wallpaper_filename=$(basename "${wallpaper}")
   wallpaper_name=${wallpaper_filename%.*}
@@ -132,7 +132,7 @@ function CreateProfile() {
 			<key>PayloadType</key>
 			<string>com.apple.desktop</string>
 			<key>PayloadUUID</key>
-			<string>'`uuidgen`'</string>
+			<string>'"$(uuidgen)"'</string>
 			<key>PayloadVersion</key>
 			<integer>1</integer>
 			<key>override-picture-path</key>
@@ -154,7 +154,7 @@ function CreateProfile() {
 	<key>PayloadType</key>
 	<string>Configuration</string>
 	<key>PayloadUUID</key>
-	<string>'`uuidgen`'</string>
+	<string>'"$(uuidgen)"'</string>
 	<key>PayloadVersion</key>
 	<integer>1</integer>
 </dict>
