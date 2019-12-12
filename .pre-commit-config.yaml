@@ -1,0 +1,20 @@
+repos:
+-   repo: https://github.com/homebysix/pre-commit-macadmin
+    rev: v1.2.1
+    hooks:
+    -   id: check-munkipkg-buildinfo
+    -   id: check-outset-scripts
+    -   id: check-plists
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.2.3
+    hooks:
+    - id: no-commit-to-branch
+-   repo: https://gitlab.com/smop/pre-commit-hooks
+    rev: v1.0.0
+    hooks:
+    - id: check-gitlab-ci
+-   repo: https://github.com/jumanjihouse/pre-commit-hooks
+    rev: v1.11.2
+    hooks:
+    - id: shellcheck
+#### https://pre-commit.com
